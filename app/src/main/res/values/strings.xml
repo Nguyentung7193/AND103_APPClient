@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AppClient</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Homefragment">HomeFragment</string>
+    <string name="Userfragment">UserFragment</string>
+    <string name="Productfragment">ProductFragment</string>
+</resources>
