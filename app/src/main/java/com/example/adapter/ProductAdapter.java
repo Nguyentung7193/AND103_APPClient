@@ -34,7 +34,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = products.get(position);
         holder.tvName.setText(product.getName());
-        holder.tvPrice.setText(String.format("$%.2f", product.getPrice()));
+        holder.tvPrice.setText(String.format("$%d", product.getPrice()));
     }
     @Override
     public int getItemCount() {

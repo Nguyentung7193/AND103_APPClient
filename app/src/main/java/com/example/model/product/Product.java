@@ -4,7 +4,7 @@ public class Product {
     private String _id;
     private String name;
     private String type;
-    private double price;
+    private int price;
     private String description;
 
     // Getters và Setters
@@ -32,11 +32,11 @@ public class Product {
         this.type = type;
     }
 
-    public double getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 

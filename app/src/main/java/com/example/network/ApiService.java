@@ -5,6 +5,7 @@ import com.example.model.auth.LoginResponse;
 import com.example.model.auth.RegisterRequest;
 import com.example.model.auth.RegisterResponse;
 import com.example.model.auth.UserResponse;
+import com.example.model.cart.Cart;
 import com.example.model.product.Product;
 import com.example.model.product.ProductResponse;
 
@@ -33,5 +34,8 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Path("type") String type
     );
+
+    @GET("cart")
+    Call<ApiResponse<Cart>> getCart(@Header("Authorization") String token);
 
 }

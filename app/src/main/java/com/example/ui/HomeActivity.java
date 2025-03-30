@@ -1,8 +1,11 @@
 package com.example.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,16 +31,31 @@ import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
+    private ImageView ivCart;
     private TextView tvUserName, tvUserEmail;
+    private SharedPreferences sharedPreferences;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        token = sharedPreferences.getString("token", null);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         tvUserName = findViewById(R.id.tvUserName);
         tvUserEmail = findViewById(R.id.tvUserEmail);
+        ivCart = findViewById(R.id.ivCart);
+        ivCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Tạo Intent để chuyển sang CartActivity
+                Intent intent = new Intent(HomeActivity.this, CartActivity.class);
+                intent.putExtra("TOKEN", token);
+                startActivity(intent);
+            }
+        });
         loadFragment(new HomeFragment());
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -69,18 +87,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadUserInfo() {
-        // Lấy token từ SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        String token = sharedPreferences.getString("token", null);
-
         if (token == null) {
             Toast.makeText(this, "Không có token, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
             return;
         }
-
         // Nếu API của bạn yêu cầu "Bearer " trước token, hãy thêm vào
         String authToken = "Bearer " + token;
-
         Call<UserResponse> call = RetrofitClient.getApiService().getUserInfo(authToken);
         call.enqueue(new Callback<UserResponse>() {
             @Override
