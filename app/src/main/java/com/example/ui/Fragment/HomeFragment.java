@@ -17,10 +17,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.adapter.CategoryAdapter;
 import com.example.adapter.ProductAdapter;
 import com.example.appclient.R;
+import com.example.model.cart.AddToCartRequest;
+import com.example.model.cart.CartResponse;
+import com.example.model.categories.Categories;
 import com.example.model.product.Product;
 import com.example.model.product.ProductResponse;
+import com.example.network.ApiResponse;
 import com.example.network.RetrofitClient;
 
 import org.jetbrains.annotations.Nullable;
@@ -34,13 +39,14 @@ import retrofit2.Response;
 public class HomeFragment extends Fragment {
 
     private RecyclerView rvProducts;
+    private RecyclerView rvCategories;
     private ProductAdapter productAdapter;
-    private String productType = "electronics";
+    private CategoryAdapter categoryAdapter;
+    private String productType = "Tất cả";
 
     public HomeFragment() {
         // Required empty public constructor
     }
-
     public static HomeFragment newInstance() {
         return new HomeFragment();
     }
@@ -56,9 +62,60 @@ public class HomeFragment extends Fragment {
         rvProducts.setLayoutManager(new LinearLayoutManager(getContext()));
         productAdapter = new ProductAdapter();
         rvProducts.setAdapter(productAdapter);
+//        loadProductsByType(productType);
 
-        loadProductsByType(productType);
+        rvCategories = view.findViewById(R.id.rvCategories);
+        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rvCategories.setLayoutManager(horizontalLayoutManager);
+        categoryAdapter = new CategoryAdapter();
+        rvCategories.setAdapter(categoryAdapter);
+        loadCategories(); // Tải danh sách danh mục
+        loadProductsByType("all"); // Mặc định tải tất cả sản phẩm
+        categoryAdapter.setOnItemClickListener((category, position) -> {
+            String selectedType = category.getName();
+            if(selectedType.equalsIgnoreCase("Tất cả")){
+                // Nếu chọn "Tất cả" thì gọi API không truyền type
+                loadProductsByType("all");
+            } else {
+                loadProductsByType(selectedType);
+            }
+        });
+        productAdapter.setOnAddToCartClickListener(product -> {
+            addToCart(product.get_id(), 1); // Giả sử thêm 1 sản phẩm
+        });
         return view;
+    }
+    private void loadCategories() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+
+        if (token == null) {
+            Toast.makeText(getContext(), "Không có token, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String authToken = "Bearer " + token;
+        // Gọi API lấy danh sách category
+        Call<ApiResponse<List<Categories>>> call = RetrofitClient.getApiService().getCategory(authToken);
+        call.enqueue(new Callback<ApiResponse<List<Categories>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Categories>>> call, Response<ApiResponse<List<Categories>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Categories> categories = response.body().getData();
+                    Categories allCategory = new Categories();
+                    allCategory.setName("Tất cả");
+                    categories.add(0, allCategory);
+                    categoryAdapter.setCategories(categories);
+                } else {
+                    Toast.makeText(getContext(), "Lấy danh sách category thất bại", Toast.LENGTH_SHORT).show();
+                    Log.e("HomeFragment", "Error code: " + response.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<List<Categories>>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("HomeFragment", "onFailure: ", t);
+            }
+        });
     }
     private void loadProductsByType(String type) {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
@@ -88,6 +145,33 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<ProductResponse> call, Throwable t) {
                 Toast.makeText(getContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("HomeFragment", "onFailure: ", t);
+            }
+        });
+    }
+    private void addToCart(String productId, int quantity) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+        if (token == null) {
+            Toast.makeText(getContext(), "Không có token, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String authToken = "Bearer " + token;
+        AddToCartRequest request = new AddToCartRequest(productId, quantity);
+        Call<CartResponse> call = RetrofitClient.getApiService().addToCart(authToken, request);
+        call.enqueue(new Callback<CartResponse>() {
+            @Override
+            public void onResponse(Call<CartResponse> call, Response<CartResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Sản phẩm đã được thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Thêm sản phẩm vào giỏ hàng thất bại", Toast.LENGTH_SHORT).show();
+                    Log.e("HomeFragment", "Add to Cart Error code: " + response.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<CartResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("HomeFragment", "Add to Cart onFailure: ", t);
             }
         });
     }
