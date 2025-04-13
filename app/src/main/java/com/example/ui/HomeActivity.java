@@ -18,9 +18,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.appclient.R;
-import com.example.model.auth.UserResponse;
+import com.example.model.user.UserResponse;
+import com.example.network.ApiResponse;
 import com.example.network.RetrofitClient;
 import com.example.ui.Fragment.HomeFragment;
+import com.example.ui.Fragment.OderFragment;
 import com.example.ui.Fragment.ProductFragment;
 import com.example.ui.Fragment.UserFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -67,7 +69,7 @@ public class HomeActivity extends AppCompatActivity {
                 selectedFragment = new UserFragment();
                 Toast.makeText(HomeActivity.this, "User clicked", Toast.LENGTH_SHORT).show();
             } else if (itemId == R.id.navigation_product) {
-                selectedFragment = new ProductFragment();
+                selectedFragment = new OderFragment();
                 Toast.makeText(HomeActivity.this, "Product clicked", Toast.LENGTH_SHORT).show();
             }
             if (selectedFragment != null) {
@@ -87,34 +89,33 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadUserInfo() {
-        if (token == null) {
+        if (token == null || token.isEmpty()) {
             Toast.makeText(this, "Không có token, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Nếu API của bạn yêu cầu "Bearer " trước token, hãy thêm vào
+
         String authToken = "Bearer " + token;
-        Call<UserResponse> call = RetrofitClient.getApiService().getUserInfo(authToken);
-        call.enqueue(new Callback<UserResponse>() {
+        Call<ApiResponse<UserResponse>> call = RetrofitClient.getApiService().getUserInfo(authToken);
+
+        call.enqueue(new Callback<ApiResponse<UserResponse>>() {
             @Override
-            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    UserResponse user = response.body();
-                    // Cập nhật UI với thông tin người dùng
+            public void onResponse(Call<ApiResponse<UserResponse>> call, Response<ApiResponse<UserResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                    UserResponse user = response.body().getData();
                     tvUserName.setText(user.getName());
                     tvUserEmail.setText(user.getEmail());
                 } else {
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Không có thông tin lỗi";
-                        Log.e("HomeActivity", "Lấy thông tin người dùng thất bại. Code: " + response.code() + ", Error: " + errorBody);
-                    } catch (Exception e) {
-                        Log.e("HomeActivity", "Error parsing errorBody", e);
+                    String message = "Không lấy được thông tin người dùng";
+                    if (response.body() != null) {
+                        message = response.body().getMsg();
                     }
-                    Toast.makeText(HomeActivity.this, "Lấy thông tin người dùng thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, message, Toast.LENGTH_SHORT).show();
+                    Log.e("HomeActivity", "Code: " + response.code() + ", Msg: " + message);
                 }
             }
 
             @Override
-            public void onFailure(Call<UserResponse> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<UserResponse>> call, Throwable t) {
                 Log.e("HomeActivity", "Lỗi khi call API lấy thông tin người dùng", t);
                 Toast.makeText(HomeActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }

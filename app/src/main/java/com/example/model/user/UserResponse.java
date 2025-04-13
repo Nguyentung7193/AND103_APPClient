@@ -1,4 +1,4 @@
-package com.example.model.auth;
+package com.example.model.user;
 
 public class UserResponse {
     private String _id;

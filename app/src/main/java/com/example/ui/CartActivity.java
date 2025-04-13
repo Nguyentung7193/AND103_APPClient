@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.adapter.CartAdapter;
 import com.example.appclient.R;
 import com.example.model.cart.Cart;
+import com.example.model.order.CreateOrderRequest;
 import com.example.model.product.Product;
 import com.example.network.ApiResponse;
 import com.example.network.ApiService;
@@ -56,7 +57,6 @@ public class CartActivity extends AppCompatActivity {
         cartAdapter = new CartAdapter(productList);
         rvCartProducts.setAdapter(cartAdapter);
 
-        // Sự kiện cho nút quay lại: kết thúc Activity
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,9 +67,7 @@ public class CartActivity extends AppCompatActivity {
         btnPurchase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Ví dụ: thông báo đặt mua thành công
-                Toast.makeText(CartActivity.this, "Đặt mua thành công!", Toast.LENGTH_SHORT).show();
-                // Ở đây bạn có thể gọi API đặt mua hoặc chuyển sang màn hình thanh toán
+                createOrderFromCart();
             }
         });
        fetchCart();
@@ -102,6 +100,36 @@ public class CartActivity extends AppCompatActivity {
                 Toast.makeText(CartActivity.this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void createOrderFromCart() {
+        // Giả lập thông tin đơn hàng (sau này có thể cho người dùng nhập)
+        String fullname = "Nguyễn Văn A";
+        String address = "123 Đường ABC, TP.HCM";
+        String phone = "0987654321";
+        String note = "Giao buổi sáng";
+        String type = "online";
+
+        CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type);
+
+        apiService.createOrderFromCart("Bearer " + authToken, orderRequest)
+                .enqueue(new Callback<ApiResponse<Object>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(CartActivity.this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(CartActivity.this, "Lỗi khi đặt hàng!", Toast.LENGTH_SHORT).show();
+                            Log.e("ORDER_API", "Lỗi response: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                        Toast.makeText(CartActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
+                        Log.e("ORDER_API", "Lỗi gọi API: " + t.getMessage());
+                    }
+                });
     }
 
 

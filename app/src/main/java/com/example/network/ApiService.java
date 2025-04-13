@@ -4,7 +4,9 @@ import com.example.model.auth.LoginRequest;
 import com.example.model.auth.LoginResponse;
 import com.example.model.auth.RegisterRequest;
 import com.example.model.auth.RegisterResponse;
-import com.example.model.auth.UserResponse;
+import com.example.model.order.CreateOrderRequest;
+import com.example.model.order.Order;
+import com.example.model.user.UserResponse;
 import com.example.model.cart.AddToCartRequest;
 import com.example.model.cart.Cart;
 import com.example.model.cart.CartResponse;
@@ -13,12 +15,14 @@ import com.example.model.product.Product;
 import com.example.model.product.ProductResponse;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -30,7 +34,13 @@ public interface ApiService {
     Call<RegisterResponse> register(@Body RegisterRequest request);
 
     @GET("auth/getInforUser")
-    Call<UserResponse> getUserInfo(@Header("Authorization") String token);
+    Call<ApiResponse<UserResponse>> getUserInfo(@Header("Authorization") String token);
+
+    @PUT("auth/updateUser")
+    Call<ApiResponse<UserResponse>> updateUser(
+            @Body Map<String, Object> updates,
+            @Header("Authorization") String token
+    );
 
     @GET("products/type/{type}")
     Call<ProductResponse> getProductsByType(
@@ -45,6 +55,30 @@ public interface ApiService {
 
     @POST("cart/add")
     Call<CartResponse> addToCart(@Header("Authorization") String token, @Body AddToCartRequest request);
+
+    @GET("products/detail/{id}")
+    Call<ApiResponse<Product>> getProductById(
+            @Header("Authorization") String token,
+            @Path("id") String productId
+    );
+
+    @GET("products/search")
+    Call<ApiResponse<List<Product>>> searchProducts(
+            @Header("Authorization") String token,
+            @Query("name") String keyword
+    );
+
+    @POST("orders/order/create")
+    Call<ApiResponse<Object>> createOrderFromCart(
+            @Header("Authorization") String token,
+            @Body CreateOrderRequest request
+    );
+    @GET("orders/order")
+    Call<List<Order>> getOrders(@Header("Authorization") String authToken);
+
+    @GET("orders/order/{id}")
+    Call<Order> getOrderById(@Header("Authorization") String authToken, @Path("id") String orderId);
+
 
 
 

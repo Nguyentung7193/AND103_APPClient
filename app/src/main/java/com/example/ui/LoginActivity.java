@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Ví dụ: lưu token, chuyển sang màn hình chính,...
                     String token = response.body().getToken();
                     SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                     sharedPreferences.edit().putString("token", token).apply();
