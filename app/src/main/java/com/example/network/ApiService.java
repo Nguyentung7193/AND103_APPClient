@@ -6,6 +6,7 @@ import com.example.model.auth.RegisterRequest;
 import com.example.model.auth.RegisterResponse;
 import com.example.model.order.CreateOrderRequest;
 import com.example.model.order.Order;
+import com.example.model.order.OrderResponse;
 import com.example.model.user.UserResponse;
 import com.example.model.cart.AddToCartRequest;
 import com.example.model.cart.Cart;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -77,7 +79,19 @@ public interface ApiService {
     Call<List<Order>> getOrders(@Header("Authorization") String authToken);
 
     @GET("orders/order/{id}")
-    Call<Order> getOrderById(@Header("Authorization") String authToken, @Path("id") String orderId);
+    Call<OrderResponse> getOrderById(@Header("Authorization") String authToken, @Path("id") String orderId);
+
+    @PUT("cart/update")
+    Call<ApiResponse<Cart>> updateCartItem(
+            @Header("Authorization") String authToken,
+            @Query("productId") String productId,
+            @Query("quantity") int quantity
+    );
+    @DELETE("cart/remove/{productId}")
+    Call<ApiResponse<Cart>> removeCartItem(
+            @Header("Authorization") String token,
+            @Path("productId") String productId
+    );
 
 
 

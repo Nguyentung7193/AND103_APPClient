@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.adapter.CartAdapter;
 import com.example.appclient.R;
 import com.example.model.cart.Cart;
+import com.example.model.cart.CartItem;
 import com.example.model.order.CreateOrderRequest;
 import com.example.model.product.Product;
 import com.example.network.ApiResponse;
@@ -37,7 +39,7 @@ public class CartActivity extends AppCompatActivity {
     private Button btnPurchase;
     private RecyclerView rvCartProducts;
     private CartAdapter cartAdapter;
-    private List<Product> productList = new ArrayList<>();
+    private List<CartItem> productList = new ArrayList<>();
     private ApiService apiService;
     String authToken;
 
@@ -54,7 +56,14 @@ public class CartActivity extends AppCompatActivity {
 
         // Cài đặt RecyclerView
         rvCartProducts.setLayoutManager(new LinearLayoutManager(this));
-        cartAdapter = new CartAdapter(productList);
+        cartAdapter = new CartAdapter(productList, (cartItem, newQuantity) -> {
+            // Bạn có thể để tạm empty, hoặc gọi updateCartItem ngay
+            updateCartItem(cartItem.getProduct().get_id(), newQuantity);
+            cartItem.setQuantity(newQuantity);
+            cartAdapter.notifyDataSetChanged();
+        },cartItem -> {
+            removeCartItem(cartItem.getProduct().get_id()); // Gọi API xoá sản phẩm
+        });
         rvCartProducts.setAdapter(cartAdapter);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -67,27 +76,63 @@ public class CartActivity extends AppCompatActivity {
         btnPurchase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createOrderFromCart();
+                showOrderDialog();;
             }
         });
        fetchCart();
     }
+//    private void fetchCart() {
+//        apiService.getCart("Bearer " + authToken).enqueue(new Callback<ApiResponse<Cart>>() {
+//            @Override
+//            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    Cart cart = response.body().getData();
+//                    List<Product> productList = new ArrayList<>();
+//                    if (cart != null && cart.getItems() != null) {
+//                        for (Cart.CartItem item : cart.getItems()) {
+//                            productList.add(item.getProduct());
+//                        }
+//                    } else {
+//                        Toast.makeText(CartActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
+//                    }
+//                    // Cập nhật adapter với danh sách sản phẩm
+//                    cartAdapter = new CartAdapter(productList);
+//                    rvCartProducts.setAdapter(cartAdapter);
+//                } else {
+//                    Toast.makeText(CartActivity.this, "Lỗi tải giỏ hàng", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
+//                Log.e("API_ERROR", "Lỗi API: " + t.getMessage());
+//                Toast.makeText(CartActivity.this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
     private void fetchCart() {
         apiService.getCart("Bearer " + authToken).enqueue(new Callback<ApiResponse<Cart>>() {
             @Override
             public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Cart cart = response.body().getData();
-                    List<Product> productList = new ArrayList<>();
+                    List<CartItem> cartItems = new ArrayList<>();
                     if (cart != null && cart.getItems() != null) {
                         for (Cart.CartItem item : cart.getItems()) {
-                            productList.add(item.getProduct());
+                            cartItems.add(new CartItem(item.getProduct(), item.getQuantity()));
                         }
                     } else {
                         Toast.makeText(CartActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
                     }
-                    // Cập nhật adapter với danh sách sản phẩm
-                    cartAdapter = new CartAdapter(productList);
+
+                    cartAdapter = new CartAdapter(cartItems, (cartItem, newQuantity) -> {
+                        updateCartItem(cartItem.getProduct().get_id(), newQuantity); // Gọi API cập nhật
+                        cartItem.setQuantity(newQuantity);
+                        cartAdapter.notifyDataSetChanged();
+                    },cartItem -> {
+                        removeCartItem(cartItem.getProduct().get_id()); // Gọi API xoá sản phẩm
+                    });
+
                     rvCartProducts.setAdapter(cartAdapter);
                 } else {
                     Toast.makeText(CartActivity.this, "Lỗi tải giỏ hàng", Toast.LENGTH_SHORT).show();
@@ -101,14 +146,74 @@ public class CartActivity extends AppCompatActivity {
             }
         });
     }
-    private void createOrderFromCart() {
-        // Giả lập thông tin đơn hàng (sau này có thể cho người dùng nhập)
-        String fullname = "Nguyễn Văn A";
-        String address = "123 Đường ABC, TP.HCM";
-        String phone = "0987654321";
-        String note = "Giao buổi sáng";
-        String type = "online";
+    private void updateCartItem(String productId, int newQuantity) {
+        apiService.updateCartItem("Bearer " + authToken, productId, newQuantity)
+                .enqueue(new Callback<ApiResponse<Cart>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(CartActivity.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(CartActivity.this, "Lỗi cập nhật số lượng", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
+                    @Override
+                    public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
+                        Toast.makeText(CartActivity.this, "Lỗi server", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void removeCartItem(String productId) {
+        apiService.removeCartItem("Bearer " + authToken, productId)
+                .enqueue(new Callback<ApiResponse<Cart>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
+                        if (response.isSuccessful()) {
+                            // Cập nhật giỏ hàng sau khi xoá sản phẩm
+                            fetchCart(); // Tải lại giỏ hàng
+                            Toast.makeText(CartActivity.this, "Xoá sản phẩm thành công", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(CartActivity.this, "Lỗi khi xoá sản phẩm", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
+                        Toast.makeText(CartActivity.this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void showOrderDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_order_info, null);
+
+        EditText etFullname = dialogView.findViewById(R.id.etFullname);
+        EditText etAddress = dialogView.findViewById(R.id.etAddress);
+        EditText etPhone = dialogView.findViewById(R.id.etPhone);
+        EditText etNote = dialogView.findViewById(R.id.etNote);
+        EditText etType = dialogView.findViewById(R.id.etType);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Nhập thông tin đặt hàng")
+                .setView(dialogView)
+                .setPositiveButton("Đặt hàng", (dialog, which) -> {
+                    String fullname = etFullname.getText().toString().trim();
+                    String address = etAddress.getText().toString().trim();
+                    String phone = etPhone.getText().toString().trim();
+                    String note = etNote.getText().toString().trim();
+                    String type = etType.getText().toString().trim();
+
+                    if (fullname.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+                        Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    createOrderFromCart(fullname, address, phone, note, type);
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+    private void createOrderFromCart(String fullname, String address, String phone, String note, String type) {
         CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type);
 
         apiService.createOrderFromCart("Bearer " + authToken, orderRequest)
@@ -131,6 +236,8 @@ public class CartActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 
 
 }

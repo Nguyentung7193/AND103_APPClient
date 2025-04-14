@@ -9,44 +9,48 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appclient.R;
-import com.example.model.product.Product;
+import com.example.model.order.OrderItem;
 
 import java.util.List;
 
 public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.OrderDetailViewHolder> {
     private Context context;
-    private List<Product> productList;
+    private List<OrderItem> itemList;
 
-    public OrderDetailAdapter(Context context, List<Product> productList) {
+    public OrderDetailAdapter(Context context, List<OrderItem> itemList) {
         this.context = context;
-        this.productList = productList;
+        this.itemList = itemList;
     }
 
     @Override
     public OrderDetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_order_product, parent, false);
         return new OrderDetailViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(OrderDetailViewHolder holder, int position) {
-        Product product = productList.get(position);
-        holder.tvProductName.setText(product.getName());
-        holder.tvProductPrice.setText("Giá: " + product.getPrice());
+        OrderItem item = itemList.get(position);
+        holder.tvProductName.setText(item.getName());
+        holder.tvProductPrice.setText("Giá: " + item.getPrice() + "đ");
+        holder.tvQuantity.setText("Số lượng: " + item.getQuantity());
+        holder.tvTotal.setText("Thành tiền: " + item.getTotal() + "đ");
     }
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return itemList.size();
     }
 
     public static class OrderDetailViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProductName, tvProductPrice;
+        TextView tvProductName, tvProductPrice, tvQuantity, tvTotal;
 
         public OrderDetailViewHolder(View itemView) {
             super(itemView);
             tvProductName = itemView.findViewById(R.id.tvProductName);
             tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
+            tvQuantity = itemView.findViewById(R.id.tvQuantity);
+            tvTotal = itemView.findViewById(R.id.tvTotal);
         }
     }
 }
