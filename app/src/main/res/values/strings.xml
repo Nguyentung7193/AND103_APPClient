@@ -5,4 +5,5 @@
     <string name="Homefragment">HomeFragment</string>
     <string name="Userfragment">UserFragment</string>
     <string name="Productfragment">ProductFragment</string>
+    <string name="default_web_client_id">1036909743366-b3orrpoau67u2q6cs2k166ro25hno90q.apps.googleusercontent.com</string>
 </resources>

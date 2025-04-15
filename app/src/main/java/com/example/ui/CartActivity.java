@@ -1,5 +1,6 @@
 package com.example.ui;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,6 +43,8 @@ public class CartActivity extends AppCompatActivity {
     private List<CartItem> productList = new ArrayList<>();
     private ApiService apiService;
     String authToken;
+    private SharedPreferences sharedPreferences;
+    String fcmToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,8 @@ public class CartActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_cart);
         authToken = getIntent().getStringExtra("TOKEN");
+        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        fcmToken = sharedPreferences.getString("fcm_token", null);
         btnBack = findViewById(R.id.btnBack);
         btnPurchase = findViewById(R.id.btnPurchase);
         rvCartProducts = findViewById(R.id.rvCartProducts);
@@ -208,13 +213,13 @@ public class CartActivity extends AppCompatActivity {
                         return;
                     }
 
-                    createOrderFromCart(fullname, address, phone, note, type);
+                    createOrderFromCart(fullname, address, phone, note, type,fcmToken);
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
-    private void createOrderFromCart(String fullname, String address, String phone, String note, String type) {
-        CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type);
+    private void createOrderFromCart(String fullname, String address, String phone, String note, String type, String fcmToken) {
+        CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type,fcmToken);
 
         apiService.createOrderFromCart("Bearer " + authToken, orderRequest)
                 .enqueue(new Callback<ApiResponse<Object>>() {

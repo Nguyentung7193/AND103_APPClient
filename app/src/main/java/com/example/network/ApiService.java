@@ -1,5 +1,6 @@
 package com.example.network;
 
+import com.example.model.auth.GoogleLoginRequest;
 import com.example.model.auth.LoginRequest;
 import com.example.model.auth.LoginResponse;
 import com.example.model.auth.RegisterRequest;
@@ -92,6 +93,9 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Path("productId") String productId
     );
+
+    @POST("auth/login/firebase")
+    Call<LoginResponse> googleLogin(@Body GoogleLoginRequest request);
 
 
 
