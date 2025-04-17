@@ -66,7 +66,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // Cấu hình Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                // Lấy client id từ strings.xml (đã cấu hình trong Firebase console)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
@@ -182,7 +181,6 @@ public class LoginActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                // Đăng nhập Firebase bằng Google
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
                 Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -191,7 +189,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // Xác thực với Firebase bằng Google credential
+    // Xác thực với Firebase
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
@@ -201,21 +199,17 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "Đăng nhập bằng Google thành công", Toast.LENGTH_SHORT).show();
-                            // Lấy token từ Firebase sau khi đăng nhập thành công
+                            // Lấy token từ Firebase
                             user.getIdToken(true)
                                     .addOnCompleteListener(new OnCompleteListener<com.google.firebase.auth.GetTokenResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<com.google.firebase.auth.GetTokenResult> task) {
                                             if (task.isSuccessful()) {
                                                 String firebaseToken = task.getResult().getToken();
-                                                // Lưu token vào SharedPreferences (hoặc gửi token tới server)
                                                 SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                                                 sharedPreferences.edit().putString("token", firebaseToken).apply();
-                                                // Ví dụ: Gọi API gửi token lên server
-
                                                 GoogleLoginRequest request = new GoogleLoginRequest(firebaseToken);
                                                 Call<LoginResponse> call = RetrofitClient.getApiService().googleLogin(request);
-
                                                 call.enqueue(new Callback<LoginResponse>() {
                                                     @Override
                                                     public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
@@ -235,7 +229,6 @@ public class LoginActivity extends AppCompatActivity {
                                                         Toast.makeText(LoginActivity.this, "Lỗi khi gọi API: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
-
 
 
                                             } else {

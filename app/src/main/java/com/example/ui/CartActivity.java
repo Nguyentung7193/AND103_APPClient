@@ -62,12 +62,11 @@ public class CartActivity extends AppCompatActivity {
         // Cài đặt RecyclerView
         rvCartProducts.setLayoutManager(new LinearLayoutManager(this));
         cartAdapter = new CartAdapter(productList, (cartItem, newQuantity) -> {
-            // Bạn có thể để tạm empty, hoặc gọi updateCartItem ngay
             updateCartItem(cartItem.getProduct().get_id(), newQuantity);
             cartItem.setQuantity(newQuantity);
             cartAdapter.notifyDataSetChanged();
         },cartItem -> {
-            removeCartItem(cartItem.getProduct().get_id()); // Gọi API xoá sản phẩm
+            removeCartItem(cartItem.getProduct().get_id());
         });
         rvCartProducts.setAdapter(cartAdapter);
 
@@ -86,35 +85,6 @@ public class CartActivity extends AppCompatActivity {
         });
        fetchCart();
     }
-//    private void fetchCart() {
-//        apiService.getCart("Bearer " + authToken).enqueue(new Callback<ApiResponse<Cart>>() {
-//            @Override
-//            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    Cart cart = response.body().getData();
-//                    List<Product> productList = new ArrayList<>();
-//                    if (cart != null && cart.getItems() != null) {
-//                        for (Cart.CartItem item : cart.getItems()) {
-//                            productList.add(item.getProduct());
-//                        }
-//                    } else {
-//                        Toast.makeText(CartActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
-//                    }
-//                    // Cập nhật adapter với danh sách sản phẩm
-//                    cartAdapter = new CartAdapter(productList);
-//                    rvCartProducts.setAdapter(cartAdapter);
-//                } else {
-//                    Toast.makeText(CartActivity.this, "Lỗi tải giỏ hàng", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
-//                Log.e("API_ERROR", "Lỗi API: " + t.getMessage());
-//                Toast.makeText(CartActivity.this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
     private void fetchCart() {
         apiService.getCart("Bearer " + authToken).enqueue(new Callback<ApiResponse<Cart>>() {
             @Override
@@ -131,11 +101,11 @@ public class CartActivity extends AppCompatActivity {
                     }
 
                     cartAdapter = new CartAdapter(cartItems, (cartItem, newQuantity) -> {
-                        updateCartItem(cartItem.getProduct().get_id(), newQuantity); // Gọi API cập nhật
+                        updateCartItem(cartItem.getProduct().get_id(), newQuantity);
                         cartItem.setQuantity(newQuantity);
                         cartAdapter.notifyDataSetChanged();
                     },cartItem -> {
-                        removeCartItem(cartItem.getProduct().get_id()); // Gọi API xoá sản phẩm
+                        removeCartItem(cartItem.getProduct().get_id());
                     });
 
                     rvCartProducts.setAdapter(cartAdapter);
@@ -220,7 +190,6 @@ public class CartActivity extends AppCompatActivity {
     }
     private void createOrderFromCart(String fullname, String address, String phone, String note, String type, String fcmToken) {
         CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type,fcmToken);
-
         apiService.createOrderFromCart("Bearer " + authToken, orderRequest)
                 .enqueue(new Callback<ApiResponse<Object>>() {
                     @Override
@@ -241,8 +210,4 @@ public class CartActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-
-
 }
