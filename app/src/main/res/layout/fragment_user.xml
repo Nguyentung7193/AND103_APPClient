@@ -5,8 +5,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
-    android:gravity="center"
+    android:gravity="top|center_horizontal"
     android:background="#FFFFFF">
+
+    <!-- Icon Avatar (nếu có sau này) -->
 
     <!-- Tên người dùng -->
     <TextView
@@ -16,8 +18,9 @@
         android:text="Tên người dùng"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#000000"
+        android:textColor="#008CBA"
         android:gravity="center"
+        android:layout_marginTop="24dp"
         android:layout_marginBottom="8dp"/>
 
     <!-- Email -->
@@ -27,9 +30,9 @@
         android:layout_height="wrap_content"
         android:text="user@example.com"
         android:textSize="16sp"
-        android:textColor="#444444"
+        android:textColor="#555555"
         android:gravity="center"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginBottom="32dp"/>
 
     <!-- Nút sửa thông tin -->
     <androidx.appcompat.widget.AppCompatButton
@@ -38,9 +41,8 @@
         android:layout_height="wrap_content"
         android:text="Sửa thông tin"
         android:textColor="#FFFFFF"
-        android:background="@drawable/btn_black_rounded"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp" />
+        android:background="@drawable/btn_blue_rounded"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="10dp"
+        android:textSize="14sp"/>
 </LinearLayout>

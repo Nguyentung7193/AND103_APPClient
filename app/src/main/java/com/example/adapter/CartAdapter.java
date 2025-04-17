@@ -56,7 +56,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         private TextView tvName, tvDescription, tvPrice;
         private  TextView tvQuantity;
         private View btnIncrease, btnDecrease;
-        private Button btnRemove;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,7 +65,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             tvQuantity = itemView.findViewById(R.id.tvQuantity);
             btnIncrease = itemView.findViewById(R.id.btnIncrease);
             btnDecrease = itemView.findViewById(R.id.btnDecrease);
-            btnRemove = itemView.findViewById(R.id.btnRemoveFromCart);
         }
 
         public void bind(CartItem cartItem, OnQuantityChangeListener listener,OnRemoveItemListener removeListener) {
@@ -86,9 +84,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 if (newQuantity >= 0) {
                     listener.onQuantityChanged(cartItem, newQuantity);
                 }
-            });
-            btnRemove.setOnClickListener(v -> {
-                removeListener.onRemoveItem(cartItem); // Gọi callback khi nhấn nút xoá
             });
         }
     }

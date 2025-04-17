@@ -2,33 +2,47 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="12dp"
+    android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_item_card"
+    android:layout_marginBottom="12dp"
+    android:elevation="2dp">
 
     <TextView
         android:id="@+id/tvProductName"
-        android:textStyle="bold"
-        android:textSize="16sp"
         android:text="Tên sản phẩm"
+        android:textColor="#0D47A1"
+        android:textStyle="bold"
+        android:textSize="18sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/tvProductPrice"
         android:text="Giá: 100.000đ"
+        android:textColor="#444"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/tvQuantity"
         android:text="Số lượng: 2"
+        android:textColor="#444"
+        android:textSize="14sp"
+        android:layout_marginTop="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/tvTotal"
         android:text="Thành tiền: 200.000đ"
+        android:textColor="#00796B"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:layout_marginTop="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </LinearLayout>

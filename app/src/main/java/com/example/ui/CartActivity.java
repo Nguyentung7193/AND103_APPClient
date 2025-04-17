@@ -43,8 +43,6 @@ public class CartActivity extends AppCompatActivity {
     private List<CartItem> productList = new ArrayList<>();
     private ApiService apiService;
     String authToken;
-    private SharedPreferences sharedPreferences;
-    String fcmToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +50,6 @@ public class CartActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_cart);
         authToken = getIntent().getStringExtra("TOKEN");
-        sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        fcmToken = sharedPreferences.getString("fcm_token", null);
         btnBack = findViewById(R.id.btnBack);
         btnPurchase = findViewById(R.id.btnPurchase);
         rvCartProducts = findViewById(R.id.rvCartProducts);
@@ -65,7 +61,7 @@ public class CartActivity extends AppCompatActivity {
             updateCartItem(cartItem.getProduct().get_id(), newQuantity);
             cartItem.setQuantity(newQuantity);
             cartAdapter.notifyDataSetChanged();
-        },cartItem -> {
+        }, cartItem -> {
             removeCartItem(cartItem.getProduct().get_id());
         });
         rvCartProducts.setAdapter(cartAdapter);
@@ -80,11 +76,13 @@ public class CartActivity extends AppCompatActivity {
         btnPurchase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showOrderDialog();;
+                showOrderDialog();
+                ;
             }
         });
-       fetchCart();
+        fetchCart();
     }
+
     private void fetchCart() {
         apiService.getCart("Bearer " + authToken).enqueue(new Callback<ApiResponse<Cart>>() {
             @Override
@@ -104,7 +102,7 @@ public class CartActivity extends AppCompatActivity {
                         updateCartItem(cartItem.getProduct().get_id(), newQuantity);
                         cartItem.setQuantity(newQuantity);
                         cartAdapter.notifyDataSetChanged();
-                    },cartItem -> {
+                    }, cartItem -> {
                         removeCartItem(cartItem.getProduct().get_id());
                     });
 
@@ -121,12 +119,14 @@ public class CartActivity extends AppCompatActivity {
             }
         });
     }
+
     private void updateCartItem(String productId, int newQuantity) {
         apiService.updateCartItem("Bearer " + authToken, productId, newQuantity)
                 .enqueue(new Callback<ApiResponse<Cart>>() {
                     @Override
                     public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
                         if (response.isSuccessful()) {
+                            fetchCart(); // Tải lại giỏ hàng
                             Toast.makeText(CartActivity.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(CartActivity.this, "Lỗi cập nhật số lượng", Toast.LENGTH_SHORT).show();
@@ -139,6 +139,7 @@ public class CartActivity extends AppCompatActivity {
                     }
                 });
     }
+
     private void removeCartItem(String productId) {
         apiService.removeCartItem("Bearer " + authToken, productId)
                 .enqueue(new Callback<ApiResponse<Cart>>() {
@@ -152,6 +153,7 @@ public class CartActivity extends AppCompatActivity {
                             Toast.makeText(CartActivity.this, "Lỗi khi xoá sản phẩm", Toast.LENGTH_SHORT).show();
                         }
                     }
+
                     @Override
                     public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
                         Toast.makeText(CartActivity.this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
@@ -183,13 +185,14 @@ public class CartActivity extends AppCompatActivity {
                         return;
                     }
 
-                    createOrderFromCart(fullname, address, phone, note, type,fcmToken);
+                    createOrderFromCart(fullname, address, phone, note, type);
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
-    private void createOrderFromCart(String fullname, String address, String phone, String note, String type, String fcmToken) {
-        CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type,fcmToken);
+
+    private void createOrderFromCart(String fullname, String address, String phone, String note, String type) {
+        CreateOrderRequest orderRequest = new CreateOrderRequest(fullname, address, phone, note, type);
         apiService.createOrderFromCart("Bearer " + authToken, orderRequest)
                 .enqueue(new Callback<ApiResponse<Object>>() {
                     @Override
@@ -209,5 +212,11 @@ public class CartActivity extends AppCompatActivity {
                         Log.e("ORDER_API", "Lỗi gọi API: " + t.getMessage());
                     }
                 });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchCart();
     }
 }

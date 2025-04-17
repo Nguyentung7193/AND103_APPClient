@@ -3,49 +3,61 @@
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:background="#FFFFFF"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Hình ảnh sản phẩm -->
         <ImageView
             android:id="@+id/imgProduct"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="250dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background" />
 
+        <!-- Tên sản phẩm -->
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tên sản phẩm"
-            android:textSize="20sp"
-            android:textStyle="bold"
             android:layout_marginTop="16dp"
-            android:textColor="#000000" />
+            android:text="Tên sản phẩm"
+            android:textColor="#0066CC"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
+        <!-- Giá sản phẩm -->
         <TextView
             android:id="@+id/tvPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="Giá: 0 VNĐ"
-            android:textSize="16sp"
             android:textColor="#FF5722"
-            android:layout_marginTop="8dp" />
+            android:textSize="16sp" />
 
+        <!-- Mô tả sản phẩm -->
         <TextView
             android:id="@+id/tvDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Mô tả sản phẩm sẽ hiển thị ở đây..."
-            android:textSize="16sp"
             android:textColor="#444444"
-            android:layout_marginTop="16dp" />
+            android:textSize="16sp" />
 
+        <!-- Nút thêm vào giỏ hàng -->
+        <Button
+            android:id="@+id/btnAddToCart"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#0066CC"
+            android:text="Thêm vào giỏ hàng"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 </ScrollView>
-

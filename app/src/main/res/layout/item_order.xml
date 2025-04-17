@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="4dp"
+    card_view:cardElevation="8dp"
     android:layout_margin="8dp"
     android:backgroundTint="#FFFFFF">
 
@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="#F8FAFC">
 
         <!-- Tên người nhận -->
         <TextView
@@ -24,7 +25,8 @@
             android:text="Tên người nhận"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="#000000"/>
+            android:textColor="#0A5BA5"
+            android:layout_marginBottom="4dp"/>
 
         <!-- Tổng tiền -->
         <TextView
@@ -35,5 +37,20 @@
             android:textSize="14sp"
             android:textColor="#444444"
             android:layout_marginTop="4dp"/>
+
+        <!-- Nút xem chi tiết -->
+        <Button
+            android:id="@+id/btnViewDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xem chi tiết"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#0A5BA5"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textSize="14sp"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

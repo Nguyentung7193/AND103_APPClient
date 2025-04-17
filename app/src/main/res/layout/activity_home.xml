@@ -12,16 +12,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Header người dùng -->
+        <!-- Header người dùng hiện đại -->
         <LinearLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#F5F5F5"
             android:orientation="horizontal"
-            android:padding="20dp"
-            android:gravity="center_vertical"
-            android:elevation="4dp">
+            android:padding="16dp"
+            android:background="@drawable/bg_header"
+            android:elevation="4dp"
+            android:gravity="center_vertical">
 
             <!-- Thông tin người dùng -->
             <LinearLayout
@@ -34,8 +34,8 @@
                     android:id="@+id/tvUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tên người dùng"
-                    android:textColor="#000000"
+                    android:text="Xin chào, Nguyễn Văn A"
+                    android:textColor="#008CBA"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -44,18 +44,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="user@example.com"
-                    android:textColor="#555555"
+                    android:textColor="#666666"
                     android:textSize="14sp" />
             </LinearLayout>
 
             <!-- Giỏ hàng -->
             <ImageView
                 android:id="@+id/ivCart"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="4dp"
                 android:src="@drawable/icons8_cart"
+                android:background="@drawable/bg_icon_circle"
                 android:contentDescription="Giỏ hàng"
-                app:tint="#000000" />
+                app:tint="#008CBA" />
         </LinearLayout>
 
         <!-- Container nội dung -->
@@ -72,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#FFFFFF"
+        android:background="@drawable/bg_bottom_nav"
         android:elevation="8dp"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
